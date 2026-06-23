@@ -1,0 +1,34 @@
+{
+  "name": "offlinewebtools",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A collection of 100% client-side web tools. No data ever leaves your device.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check && tsc --noEmit",
+    "validate-tool": "node scripts/validate-tool.mjs",
+    "fetch-usage": "node scripts/fetch-usage.mjs",
+    "lighthouse": "lighthouse-ci",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@astrojs/react": "^3.6.2",
+    "@astrojs/sitemap": "^3.2.1",
+    "@astrojs/tailwind": "^5.1.2",
+    "astro": "^4.15.0",
+    "fuse.js": "^7.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@playwright/test": "^1.47.0",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4"
+  }
+}

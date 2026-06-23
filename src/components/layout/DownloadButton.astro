@@ -1,0 +1,19 @@
+---
+import { GITHUB_REPO_URL } from '../../lib/ads';
+
+interface Props {
+  repoLink: string;
+}
+
+const { repoLink } = Astro.props;
+---
+
+<a
+  href={repoLink}
+  rel="noopener noreferrer"
+  target="_blank"
+  class="btn-secondary shrink-0 text-sm"
+  aria-label="Download or self-host this tool without ads from GitHub"
+>
+  <span aria-hidden="true">⬇️</span> Get without ads
+</a>

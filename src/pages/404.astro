@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { buildMetaTags } from '../lib/seo';
+
+const meta = buildMetaTags({
+  title: 'Page Not Found — OfflineWebTools',
+  description: 'The page you are looking for does not exist.',
+  path: '/404',
+});
+---
+
+<BaseLayout meta={meta}>
+  <div class="flex flex-col items-center justify-center py-24 text-center">
+    <p class="text-6xl font-bold text-brand-600 dark:text-brand-400">404</p>
+    <h1 class="mt-4 text-2xl font-semibold text-slate-900 dark:text-white">Page not found</h1>
+    <p class="mt-2 text-slate-600 dark:text-slate-300">
+      The tool or page you are looking for may have moved or been removed.
+    </p>
+    <a href="/" class="btn-primary mt-6">Back to all tools</a>
+  </div>
+</BaseLayout>

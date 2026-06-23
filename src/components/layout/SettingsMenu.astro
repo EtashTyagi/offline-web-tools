@@ -1,0 +1,117 @@
+---
+// Settings (gear) menu for managing telemetry consent. Only rendered when
+// telemetry is available (GA_MEASUREMENT_ID set). Plain HTML + inline JS.
+---
+
+<button
+  type="button"
+  id="owt-settings-btn"
+  aria-label="Settings"
+  title="Settings"
+  aria-haspopup="true"
+  aria-expanded="false"
+  aria-controls="owt-settings-menu"
+  class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 ring-1 ring-inset ring-slate-300 transition-colors hover:bg-slate-100 hover:text-brand-600 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-700 dark:hover:text-brand-400"
+>
+  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.947 6.947 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+</button>
+
+<div
+  id="owt-settings-menu"
+  class="fixed right-4 top-16 z-50 hidden w-72 rounded-xl bg-white p-4 shadow-lg ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700"
+  role="menu"
+  aria-labelledby="owt-settings-btn"
+>
+  <h3 class="text-sm font-semibold text-slate-900 dark:text-white">Settings</h3>
+  <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+    Anonymous usage data helps us see which tools are popular. No accounts, no per-user tracking.
+  </p>
+  <div class="mt-4 flex items-center justify-between">
+    <span class="text-sm text-slate-700 dark:text-slate-200">Usage analytics</span>
+    <button
+      type="button"
+      id="owt-telemetry-toggle"
+      role="switch"
+      aria-checked="false"
+      class="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-300 transition-colors dark:bg-slate-600"
+    >
+      <span class="sr-only">Toggle usage analytics</span>
+      <span id="owt-toggle-knob" class="inline-block h-5 w-5 translate-x-0.5 transform rounded-full bg-white shadow transition dark:bg-slate-200"></span>
+    </button>
+  </div>
+  <p id="owt-telemetry-status" class="mt-2 text-xs text-slate-500 dark:text-slate-400">Unknown</p>
+</div>
+
+<script is:inline>
+  (() => {
+    const KEY = 'owt_consent';
+    const btn = document.getElementById('owt-settings-btn');
+    const menu = document.getElementById('owt-settings-menu');
+    const toggle = document.getElementById('owt-telemetry-toggle');
+    const knob = document.getElementById('owt-toggle-knob');
+    const status = document.getElementById('owt-telemetry-status');
+    if (!btn || !menu || !toggle || !knob || !status) return;
+
+    function readConsent() {
+      try { return localStorage.getItem(KEY); } catch (e) { return null; }
+    }
+
+    function render() {
+      const v = readConsent();
+      const on = v === 'accepted';
+      toggle.setAttribute('aria-checked', String(on));
+      if (on) {
+        toggle.classList.add('bg-brand-600', 'dark:bg-brand-600');
+        toggle.classList.remove('bg-slate-300', 'dark:bg-slate-600');
+        knob.classList.add('translate-x-[1.375rem]');
+        knob.classList.remove('translate-x-0.5');
+        status.textContent = 'On — anonymous usage data is being shared.';
+      } else if (v === 'declined') {
+        toggle.classList.remove('bg-brand-600', 'dark:bg-brand-600');
+        toggle.classList.add('bg-slate-300', 'dark:bg-slate-600');
+        knob.classList.remove('translate-x-[1.375rem]');
+        knob.classList.add('translate-x-0.5');
+        status.textContent = 'Off — no usage data is collected.';
+      } else {
+        toggle.classList.remove('bg-brand-600', 'dark:bg-brand-600');
+        toggle.classList.add('bg-slate-300', 'dark:bg-slate-600');
+        knob.classList.remove('translate-x-[1.375rem]');
+        knob.classList.add('translate-x-0.5');
+        status.textContent = 'Not decided yet — no data is collected until you opt in.';
+      }
+    }
+
+    function toggleMenu(open) {
+      btn.setAttribute('aria-expanded', String(open));
+      menu.classList.toggle('hidden', !open);
+    }
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMenu(menu.classList.contains('hidden'));
+    });
+    document.addEventListener('click', (e) => {
+      if (!menu.contains(e.target) && e.target !== btn) toggleMenu(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') toggleMenu(false);
+    });
+
+    toggle.addEventListener('click', () => {
+      const v = readConsent();
+      const next = v === 'accepted' ? 'declined' : 'accepted';
+      if (window.owtTelemetry && typeof window.owtTelemetry.setConsent === 'function') {
+        window.owtTelemetry.setConsent(next);
+      } else {
+        try { localStorage.setItem(KEY, next); } catch (e) {}
+      }
+      render();
+    });
+
+    window.addEventListener('owt-consent-change', render);
+    render();
+  })();
+</script>

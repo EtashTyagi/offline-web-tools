@@ -1,0 +1,37 @@
+---
+import { adsEnabled, ADSENSE_CLIENT_ID } from '../../lib/ads';
+
+interface Props {
+  slot?: string;
+}
+
+const { slot: slotName = 'default' } = Astro.props;
+const adsOn = adsEnabled();
+---
+
+{
+  adsOn ? (
+    <aside
+      aria-label="Advertisement"
+      class="my-4 flex min-h-[90px] w-full items-center justify-center rounded-lg bg-slate-100 text-xs text-slate-400 dark:bg-slate-800 dark:text-slate-500"
+      data-ad-slot={slotName}
+    >
+      <ins
+        class="adsbygoogle block"
+        style="display:block"
+        data-ad-client={ADSENSE_CLIENT_ID}
+        data-ad-slot={slotName}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    </aside>
+  ) : null
+}
+
+{
+  adsOn && (
+    <script is:inline>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  )
+}

@@ -1,0 +1,27 @@
+---
+import type { Tool } from '../../types/tool';
+import { categoryName } from '../../lib/search';
+
+interface Props {
+  tool: Tool;
+}
+
+const { tool } = Astro.props;
+const catName = categoryName(tool.category);
+const href = `/tools/${tool.category}/${tool.id}`;
+---
+
+<a
+  href={href}
+  class="card group flex flex-col gap-2 hover:ring-brand-500"
+  aria-label={`${tool.name}, ${catName} tool`}
+>
+  <div class="flex items-center justify-between">
+    <span class="text-2xl" aria-hidden="true">{tool.icon}</span>
+    <span class="text-xs text-slate-400 dark:text-slate-500">{catName}</span>
+  </div>
+  <h3 class="text-base font-semibold text-slate-900 group-hover:text-brand-600 dark:text-white dark:group-hover:text-brand-400">
+    {tool.name}
+  </h3>
+  <p class="text-sm text-slate-600 dark:text-slate-300">{tool.shortDescription}</p>
+</a>

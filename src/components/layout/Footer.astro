@@ -1,0 +1,28 @@
+---
+import { isOpenSource, GITHUB_REPO_URL } from '../../lib/ads';
+const openSource = isOpenSource();
+---
+
+<footer class="border-t border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+  <div class="mx-auto max-w-6xl px-4 py-8 text-sm text-slate-500 dark:text-slate-400">
+    <div class="flex flex-col justify-between gap-4 sm:flex-row">
+      <p>
+        All tools run entirely in your browser. No data ever leaves your device.
+      </p>
+      <div class="flex gap-4">
+        <a href="/" class="hover:text-brand-600 dark:hover:text-brand-400">Home</a>
+        {openSource && (
+          <a
+            href={GITHUB_REPO_URL}
+            rel="noopener noreferrer"
+            target="_blank"
+            class="hover:text-brand-600 dark:hover:text-brand-400">Source</a
+          >
+        )}
+      </div>
+    </div>
+    <p class="mt-4 text-xs text-slate-400 dark:text-slate-500">
+      © {new Date().getFullYear()} OfflineWebTools{openSource ? '. Open source under the MIT License.' : '.'}
+    </p>
+  </div>
+</footer>

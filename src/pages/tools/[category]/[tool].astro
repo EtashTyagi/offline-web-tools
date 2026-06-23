@@ -1,0 +1,26 @@
+---
+import ToolLayout from '../../../layouts/ToolLayout.astro';
+import { allTools } from '../../../lib/registry';
+import { validCategorySlug } from '../../../data/categories';
+
+export function getStaticPaths() {
+  return allTools.map((tool) => ({
+    params: { category: tool.category, tool: tool.id },
+    props: { tool },
+  }));
+}
+
+interface Props {
+  tool: (typeof allTools)[number];
+}
+
+const { tool } = Astro.props;
+
+if (!validCategorySlug(tool.category)) {
+  throw new Error(
+    `Tool "${tool.id}" has invalid category "${tool.category}". Add it to src/data/categories.ts.`,
+  );
+}
+---
+
+<ToolLayout tool={tool} />

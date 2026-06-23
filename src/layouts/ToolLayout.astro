@@ -1,0 +1,66 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import AdSlot from '../components/layout/AdSlot.astro';
+import DownloadButton from '../components/layout/DownloadButton.astro';
+import ToolIsland from '../components/ToolIsland.tsx';
+import { buildMetaTags, toolJsonLd } from '../lib/seo';
+import { githubToolPath, isOpenSource } from '../lib/ads';
+import { categoryName } from '../lib/search';
+import type { Tool } from '../types/tool';
+
+interface Props {
+  tool: Tool;
+}
+
+const { tool } = Astro.props;
+const meta = buildMetaTags({
+  title: tool.seo.title,
+  description: tool.seo.description,
+  keywords: tool.seo.keywords,
+  path: `/tools/${tool.category}/${tool.id}`,
+  ogType: 'website',
+});
+const jsonLd = toolJsonLd(tool);
+const openSource = isOpenSource();
+const repoLink = openSource ? githubToolPath(tool.category, tool.id) : '';
+const catName = categoryName(tool.category);
+---
+
+<BaseLayout meta={meta}>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} slot="head" />
+
+  <nav aria-label="Breadcrumb" class="mb-4 text-sm text-slate-500 dark:text-slate-400">
+    <a href="/" class="hover:text-brand-600 dark:hover:text-brand-400">Home</a>
+    <span class="mx-1">/</span>
+    <a href={`/search-tools#${tool.category}`} class="hover:text-brand-600 dark:hover:text-brand-400">{catName}</a>
+    <span class="mx-1">/</span>
+    <span class="text-slate-700 dark:text-slate-300">{tool.name}</span>
+  </nav>
+
+  <header class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="flex items-center gap-3 text-3xl font-bold text-slate-900 dark:text-white">
+        <span aria-hidden="true">{tool.icon}</span>{tool.name}
+      </h1>
+      <p class="mt-2 max-w-2xl text-slate-600 dark:text-slate-300">{tool.description}</p>
+    </div>
+    {openSource && <DownloadButton repoLink={repoLink} />}
+  </header>
+
+  {tool.status !== 'active' && (
+    <p class="mb-4 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+      Status: {tool.status}
+    </p>
+  )}
+
+  <article
+    class="min-h-[24rem] rounded-xl bg-white p-5 ring-1 ring-slate-200 shadow-sm dark:bg-slate-800 dark:ring-slate-700"
+    aria-label={tool.name}
+  >
+    <ToolIsland toolId={tool.id} category={tool.category} heavy={tool.heavy} client:visible />
+  </article>
+
+  <div class="mt-8">
+    <AdSlot slot="tool-bottom" />
+  </div>
+</BaseLayout>

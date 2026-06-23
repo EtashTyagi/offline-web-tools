@@ -1,0 +1,27 @@
+---
+import { nonEmptyCategories } from '../../lib/registry';
+import { allTools } from '../../lib/registry';
+
+const counts = new Map<string, number>();
+for (const t of allTools) {
+  counts.set(t.category, (counts.get(t.category) ?? 0) + 1);
+}
+---
+
+<nav
+  aria-label="Tool categories"
+  class="flex flex-wrap gap-2 rounded-xl bg-white p-3 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700"
+>
+  {
+    nonEmptyCategories.map((cat) => (
+      <a
+        href={`#${cat.slug}`}
+        class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-brand-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-brand-400"
+      >
+        <span aria-hidden="true">{cat.icon}</span>
+        <span>{cat.name}</span>
+        <span class="text-xs text-slate-400 dark:text-slate-500">({counts.get(cat.slug) ?? 0})</span>
+      </a>
+    ))
+  }
+</nav>

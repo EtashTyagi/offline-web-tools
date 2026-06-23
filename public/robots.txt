@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://offline-web-tools.com/sitemap-index.xml

@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CategoryNav from '../components/ui/CategoryNav.astro';
+import ToolSearch from '../components/search/ToolSearch.tsx';
+import AdSlot from '../components/layout/AdSlot.astro';
+import { buildSearchIndex } from '../lib/search';
+import { buildMetaTags, websiteJsonLd } from '../lib/seo';
+
+const searchIndex = buildSearchIndex();
+const meta = buildMetaTags({
+  title: 'All Tools — OfflineWebTools',
+  description:
+    'Browse and search every tool. Financial calculators, file converters, image tools, and more. All run in your browser.',
+  keywords: ['web tools', 'online tools', 'offline tools', 'free tools', 'browser tools'],
+  path: '/search-tools',
+  ogType: 'website',
+});
+const jsonLd = websiteJsonLd();
+---
+
+<BaseLayout meta={meta}>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} slot="head" />
+
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+      All tools
+    </h1>
+    <p class="mt-2 text-slate-600 dark:text-slate-300">
+      Search by name or description. Every tool runs entirely in your browser.
+    </p>
+  </header>
+
+  <CategoryNav />
+
+  <div class="mt-8">
+    <ToolSearch index={searchIndex} client:visible />
+  </div>
+
+  <div class="mt-12">
+    <AdSlot slot="home-bottom" />
+  </div>
+</BaseLayout>

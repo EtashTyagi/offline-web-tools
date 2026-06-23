@@ -1,0 +1,128 @@
+---
+import '../styles/global.css';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import ConsentBanner from '../components/layout/ConsentBanner.astro';
+import { adsEnabled, adsenseScriptTag } from '../lib/ads';
+import { telemetryAvailable, gtagScriptSrc, GA_MEASUREMENT_ID } from '../lib/telemetry';
+import type { MetaTags } from '../lib/seo';
+
+interface Props {
+  meta: MetaTags;
+}
+
+const { meta } = Astro.props;
+const adsOn = adsEnabled();
+const adScript = adsenseScriptTag();
+const telemetryOn = telemetryAvailable();
+const gtagSrc = gtagScriptSrc();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{meta.title}</title>
+    <meta name="description" content={meta.description} />
+    {meta.keywords && <meta name="keywords" content={meta.keywords} />}
+    <link rel="canonical" href={meta.canonical} />
+    <meta property="og:title" content={meta.ogTitle} />
+    <meta property="og:description" content={meta.ogDescription} />
+    <meta property="og:url" content={meta.ogUrl} />
+    <meta property="og:type" content={meta.ogType} />
+    <meta property="og:site_name" content="OfflineWebTools" />
+    <meta name="twitter:card" content={meta.twitterCard} />
+    <meta name="twitter:title" content={meta.ogTitle} />
+    <meta name="twitter:description" content={meta.ogDescription} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+    <script is:inline>
+      (() => {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = stored ? stored === 'dark' : prefersDark;
+        document.documentElement.classList.toggle('dark', isDark);
+      })();
+    </script>
+    {adsOn && adScript && (
+      <script is:inline async src={adScript} crossorigin="anonymous"></script>
+    )}
+    {telemetryOn && <meta name="owt-ga-id" content={GA_MEASUREMENT_ID} />}
+    {telemetryOn && (
+      <script is:inline>
+        (() => {
+          const meta = document.querySelector('meta[name="owt-ga-id"]');
+          const MEASUREMENT_ID = meta ? meta.getAttribute('content') || '' : '';
+          if (!MEASUREMENT_ID) return;
+          const KEY = 'owt_consent';
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { window.dataLayer.push(arguments); }
+          window.gtag = gtag;
+          gtag('consent', 'default', {
+            analytics_storage: 'denied',
+            wait_for_update: 500,
+          });
+          gtag('js', new Date());
+          gtag('config', MEASUREMENT_ID, { send_page_view: true });
+
+          function readConsent() {
+            try { return localStorage.getItem(KEY); } catch (e) { return null; }
+          }
+          function applyConsent(v) {
+            gtag('consent', 'update', { analytics_storage: v === 'accepted' ? 'granted' : 'denied' });
+          }
+
+          window.owtTelemetry = {
+            available: true,
+            getConsent() {
+              const v = readConsent();
+              return v === 'accepted' ? 'accepted' : v === 'declined' ? 'declined' : null;
+            },
+            setConsent(value) {
+              try { localStorage.setItem(KEY, value); } catch (e) {}
+              applyConsent(value);
+              window.dispatchEvent(new CustomEvent('owt-consent-change', { detail: value }));
+            },
+            track(name, params) {
+              if (readConsent() !== 'accepted') return;
+              gtag('event', name, params || {});
+            },
+            trackToolOpen(toolId, category) {
+              if (readConsent() !== 'accepted') return;
+              const p = { tool_id: toolId };
+              if (category) p.category = category;
+              gtag('event', 'tool_open', p);
+            },
+            trackToolUse(toolId, category) {
+              if (readConsent() !== 'accepted') return;
+              const p = { tool_id: toolId };
+              if (category) p.category = category;
+              gtag('event', 'tool_use', p);
+            },
+          };
+
+          const stored = readConsent();
+          if (stored) applyConsent(stored);
+        })();
+      </script>
+      <script is:inline async src={gtagSrc}></script>
+    )}
+    <slot name="head" />
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-white"
+      >Skip to content</a
+    >
+    <Header />
+    <main id="main" class="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+      <slot />
+    </main>
+    <Footer />
+    {telemetryOn && <ConsentBanner />}
+  </body>
+</html>

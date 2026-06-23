@@ -1,0 +1,46 @@
+---
+import { nonEmptyCategories } from '../../lib/registry';
+import { isOpenSource, GITHUB_REPO_URL } from '../../lib/ads';
+import { telemetryAvailable } from '../../lib/telemetry';
+import ThemeToggle from './ThemeToggle.astro';
+import SettingsMenu from './SettingsMenu.astro';
+
+const openSource = isOpenSource();
+const telemetryOn = telemetryAvailable();
+---
+
+<header class="border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <a href="/" class="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
+      <span aria-hidden="true">🧰</span>
+      <span>OfflineWebTools</span>
+    </a>
+    <nav aria-label="Categories" class="hidden gap-1 md:flex">
+      {
+        nonEmptyCategories.map((cat) => (
+          <a
+            href={`/search-tools#${cat.slug}`}
+            class="rounded-md px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 hover:text-brand-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-brand-400"
+          >
+            <span aria-hidden="true">{cat.icon}</span> {cat.name}
+          </a>
+        ))
+      }
+    </nav>
+    <div class="flex items-center gap-2">
+      <a href="/search-tools" class="btn-secondary text-xs md:hidden">Tools</a>
+      <ThemeToggle />
+      {telemetryOn && <SettingsMenu />}
+      {openSource && (
+        <a
+          href={GITHUB_REPO_URL}
+          rel="noopener noreferrer"
+          target="_blank"
+          class="btn-secondary text-xs"
+        >
+          GitHub
+        </a>
+      )}
+    </div>
+  </div>
+</header>
