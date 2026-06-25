@@ -30,10 +30,9 @@ function LoadingSkeleton() {
 interface Props {
   toolId: string;
   category?: string;
-  heavy?: boolean;
 }
 
-export default function ToolIsland({ toolId, category, heavy }: Props) {
+export default function ToolIsland({ toolId, category }: Props) {
   const LazyComponent = useMemo(() => {
     const importer = componentMap[toolId];
     if (!importer) return null;

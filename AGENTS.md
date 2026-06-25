@@ -59,6 +59,8 @@ The project is:
 | Search | **Fuse.js** | Client-side fuzzy search, no server needed |
 | Heavy compute | **Web Workers + WASM** | Keep main thread free |
 | Sitemap | `@astrojs/sitemap` | Auto sitemap.xml for SEO |
+| Unit tests | **Vitest** | Runs tool logic in jsdom; supports `import.meta.glob` + `import.meta.env` (Vite-powered) |
+| E2E tests | **Playwright** | Real-browser tests of every user-facing tool feature |
 | Hosting | Any static host (Cloudflare Pages, Netlify, Vercel, GitHub Pages) | It's a static build |
 
 ---
@@ -139,8 +141,21 @@ OfflineWebTools/
 │       │       └── Interpreter.tsx
 │       └── ...                    # more categories
 └── tests/
-    └── e2e/                       # Playwright tests
+    ├── unit/                     # Vitest logic tests (codecs, calc, registry, search)
+    │   ├── codecs.test.ts
+    │   ├── mortgage.test.ts
+    │   ├── registry.test.ts
+    │   └── search.test.ts
+    └── e2e/                      # Playwright browser tests (landing, search, each tool)
+        ├── helpers.ts            # gotoReady() waits for client:visible hydration
+        ├── landing.spec.ts
+        ├── search.spec.ts
+        ├── serialization.spec.ts
+        └── mortgage.spec.ts
 ```
+
+> **Testing is mandatory.** Every tool MUST ship with comprehensive unit tests
+> for its logic AND e2e tests exercising every user-facing feature. See §15.
 
 ---
 
@@ -460,6 +475,10 @@ Name the component in PascalCase, matching the tool (e.g. `MortgageCalculator.ts
   (`<ComponentName>.worker.ts`).
 - Make it fully responsive and keyboard-accessible.
 - Do NOT add any network calls. Everything is local.
+- **Design for testability.** Extract pure logic (calculations, decoders,
+  encoders) into a plain module (`codecs.ts`, `<Tool>.ts`) or `export` it from
+  the component (`export function compute(...)`) so Vitest can import and test it
+  without rendering JSX. See §15.2.
 - **Track real usage (telemetry).** `tool_open` is already tracked
   automatically when the island hydrates (you do nothing). To count a tool as
   *used*, fire `trackToolUse(toolId, category)` once, the first time the user
@@ -588,8 +607,32 @@ Fix everything it reports before finishing.
   the tags. This is what makes synonyms like "home loan" Google-indexable.
 - Search `/search-tools` for a tag (e.g. "home loan") and confirm the tool shows
   up even though the term isn't in its name.
+- `npm run test:unit` → all logic unit tests pass. `npm run test:e2e` → all
+  Playwright browser tests pass, including the new tool's spec. (See Step 9b.)
 - `npm run lighthouse` on the tool page → confirm SEO + Performance scores are
   green.
+
+### Step 9b — Write automated tests (MANDATORY)
+
+Every tool MUST ship with **comprehensive automated tests**. A tool is not done
+until both suites pass. See §15 for the full testing guide.
+
+1. **Unit tests (Vitest), `tests/unit/<tool>.test.ts`.** Test the tool's pure
+   logic, not the React rendering. Extract reusable logic into a plain module
+   (e.g. `codecs.ts`, or `export function compute(...)` from the component) so it
+   is importable in Vitest. Cover every code path and edge case: happy paths,
+   boundary inputs (zero, negatives, empty), every format/option the tool exposes,
+   and error cases (invalid input, truncated data, unsupported operations). The
+   `import.meta.glob` / `import.meta.env` features work in Vitest (Vite-powered),
+   so you can also unit-test registry/search helpers.
+2. **E2E tests (Playwright), `tests/e2e/<tool>.spec.ts`.** Drive the real page in
+   a browser and exercise **every user-facing feature**: each input/select/button,
+   each output, the success path, validation/error display, and any toggles or
+   options. Use `gotoReady(page, url)` from `tests/e2e/helpers.ts` instead of
+   `page.goto()` — Astro server-renders each tool's full UI, so elements appear
+   before `client:visible` hydration attaches React handlers; `gotoReady` waits for
+   `networkidle` so clicks/selects actually fire. Do not assert on randomness or
+   timestamps; assert on stable, deterministic results.
 
 ### Step 10 — Self-check against the checklist
 
@@ -681,6 +724,12 @@ validation script, partly by discipline.
       renders when `IS_OPEN_SOURCE=true` and `ADSENSE_CLIENT_ID` is set.
 - [ ] `npm run validate-tool -- <tool-id>` passes.
 - [ ] `npm run build` succeeds; the static page is generated.
+- [ ] **Unit tests:** `tests/unit/<tool>.test.ts` exists and `npm run test:unit`
+      passes, covering every code path, boundary input, format/option, and error
+      case of the tool's logic (see §15).
+- [ ] **E2E tests:** `tests/e2e/<tool>.spec.ts` exists and `npm run test:e2e`
+      passes, exercising every user-facing feature in a real browser using
+      `gotoReady()` (see §15).
 - [ ] `npm run lighthouse` on the tool page: SEO 100, Performance >= 90.
 - [ ] Search page (`/search-tools`) finds the tool by name, keyword, description text, and tags.
 
@@ -748,7 +797,10 @@ ad-free without any).
 | `npm run fetch-usage` | OPTIONAL: pull GA4 usage counts into `src/data/usage.json` (needs `GA4_PROPERTY_ID` + `GA4_CREDENTIALS_PATH`; run before `build` for the leaderboard) |
 | `npm run lighthouse` | Run Lighthouse CI on key pages (SEO + perf) |
 | `npm run typecheck` | `astro check && tsc --noEmit` type check |
-| `npm test` | Run unit + e2e tests |
+| `npm run test:unit` | Run Vitest unit tests (tool logic, registry, search) |
+| `npm run test:unit:watch` | Run Vitest in watch mode |
+| `npm run test:e2e` | Run Playwright browser tests (auto-starts the dev server) |
+| `npm test` | Run unit tests then e2e tests |
 
 ### Deploying the hosted (open-source, ad-enabled) build
 
@@ -795,8 +847,91 @@ context you need is above. In short:
 6. Register in category `_registry.ts` ONLY (§6.7)
 7. `npm run validate-tool -- <id>` (§6.8)
 8. `npm run dev` + `npm run build` + `npm run lighthouse` (§6.9)
-9. Walk the §10 checklist.
+9. Write comprehensive unit + e2e tests (§6.9b, §15)
+10. Walk the §10 checklist.
 
 You should be able to complete all of this without asking the user further
 questions, using sensible defaults. Only ask the user if the request is genuinely
 ambiguous about what the tool should do.
+
+---
+
+## 15. Testing Guide (MANDATORY for every tool)
+
+**Every tool MUST ship with comprehensive automated tests.** A tool is not
+finished until both the Vitest unit suite and the Playwright e2e suite pass.
+"Comprehensive" means the tests exercise **all** of the tool's features and edge
+cases, not just the happy path. If you add a knob, input, output mode, or error
+path to a tool, add a test for it.
+
+### 15.1 Test layout
+
+```
+tests/
+├── unit/                       # Vitest — pure logic
+│   ├── codecs.test.ts          # every format decode/encode + edge cases
+│   ├── mortgage.test.ts        # the compute() math
+│   ├── registry.test.ts        # registry invariants + accessors
+│   └── search.test.ts          # search index + fuzzy matching + helpers
+└── e2e/                        # Playwright — real browser
+    ├── helpers.ts              # gotoReady()
+    ├── landing.spec.ts
+    ├── search.spec.ts
+    ├── serialization.spec.ts
+    └── mortgage.spec.ts
+```
+
+- **Unit:** `tests/unit/<tool>.test.ts`. Configure via `vitest.config.ts`
+  (`environment: 'jsdom'` so browser globals like `DOMParser`/`btoa` exist). Run
+  with `npm run test:unit`.
+- **E2E:** `tests/e2e/<tool>.spec.ts`. Configure via `playwright.config.ts`
+  (auto-starts the dev server on `:4321`). Run with `npm run test:e2e`.
+- `npm test` runs unit then e2e.
+
+### 15.2 Unit tests — what to cover
+
+- **Test logic, not JSX.** If the tool's pure logic lives inside a `.tsx`
+  component, `export` the function (e.g. `export function compute(...)`) so
+  Vitest can import it. For non-trivial tools, extract logic into a sibling
+  module (`<Tool>.ts` or `codecs.ts`) and import that.
+- **Happy paths** for every primary action.
+- **Boundary inputs:** zero, negatives, very large numbers, empty strings,
+  empty arrays/objects.
+- **Every option/format/mode** the tool exposes (e.g. each serialization
+  format, each currency, each toggle).
+- **Error cases:** invalid input, malformed/truncated data, unsupported
+  operations — assert the function throws or returns the expected error shape.
+- **Round-trips** where applicable (decode → encode → decode equals input).
+- **Cross-format conversion** where the tool converts between formats
+  (any-to-any chains).
+- Vitest supports `import.meta.glob` and `import.meta.env` (Vite-powered), so
+  registry/search/usage helpers are unit-testable too.
+
+### 15.3 E2E tests — what to cover
+
+- **Always use `gotoReady(page, url)`** from `tests/e2e/helpers.ts` instead of
+  `page.goto()`. Astro server-renders each tool's full UI to static HTML, so
+  inputs/buttons are present before `client:visible` hydration attaches React
+  handlers. `gotoReady` waits for `networkidle` (and scrolls the tool article
+  into view) so clicks/selects actually fire. Calling `page.goto()` directly
+  causes intermittent "click did nothing" failures.
+- Exercise **every user-facing feature**: each input/select/button, each output
+  region, the success path, validation/error display, and any toggles or options.
+- Prefer deterministic data (the tool's "Sample" button, hand-written hex, or a
+  fixture file). **Do not assert on randomness or timestamps** — for a shuffle
+  button, assert it re-renders known tool cards rather than that the order
+  changed.
+- For file inputs, use `setInputFiles({ name, mimeType, buffer })` with a
+  `Buffer` — no real file on disk needed.
+- Locate elements robustly: prefer `id` selectors (`#src`, `#loan`) or
+  `getByRole` with exact names; remember a button's accessible name comes from
+  its `aria-label` when one is set.
+- One spec file per tool (`tests/e2e/<tool>.spec.ts`).
+
+### 15.4 Keeping tests green
+
+- `npm run typecheck` must pass (0 errors/warnings/hints) before finishing.
+- `npm run build` must succeed.
+- `npm test` (unit + e2e) must be green. If a test is genuinely flaky due to
+  timing, make it deterministic (use `gotoReady`, deterministic data, or
+  `expect.toHaveCount` instead of `expect.poll` on random output).

@@ -14,15 +14,20 @@ interface GroupedResults {
 
 export default function ToolSearch({ index }: Props) {
   const [query, setQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const fuse = useMemo(() => {
     return new Fuse(index, defaultFuseOptions());
   }, [index]);
 
   const results = useMemo<GroupedResults[]>(() => {
-    const list = query.trim()
+    let list = query.trim()
       ? fuse.search(query).map((r) => r.item)
       : index;
+
+    if (activeCategory) {
+      list = list.filter((t) => t.category === activeCategory);
+    }
 
     const grouped = new Map<string, ToolSearchEntry[]>();
     for (const tool of list) {
@@ -34,15 +39,33 @@ export default function ToolSearch({ index }: Props) {
       category,
       tools,
     }));
-  }, [query, fuse, index]);
+  }, [query, fuse, index, activeCategory]);
 
   const total = results.reduce((n, g) => n + g.tools.length, 0);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get('q');
-    if (q) setQuery(q);
+    const readState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get('q');
+      if (q) setQuery(q);
+      const hash = window.location.hash.replace(/^#/, '');
+      if (hash) {
+        setActiveCategory(hash);
+      } else {
+        setActiveCategory(null);
+      }
+    };
+    readState();
+    window.addEventListener('hashchange', readState);
+    return () => window.removeEventListener('hashchange', readState);
   }, []);
+
+  function clearCategory() {
+    setActiveCategory(null);
+    if (window.location.hash) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -64,10 +87,28 @@ export default function ToolSearch({ index }: Props) {
         />
       </div>
 
+      {activeCategory && (
+        <div className="flex items-center gap-2 text-sm">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 font-medium text-brand-800 dark:bg-brand-900/40 dark:text-brand-300">
+            <span aria-hidden="true">{categoryIcon(activeCategory)}</span>
+            {categoryName(activeCategory)}
+          </span>
+          <button
+            type="button"
+            onClick={clearCategory}
+            className="text-slate-500 underline-offset-2 hover:text-brand-600 hover:underline dark:text-slate-400 dark:hover:text-brand-400"
+          >
+            Show all categories
+          </button>
+        </div>
+      )}
+
       <p className="text-sm text-slate-500 dark:text-slate-400" aria-live="polite">
         {query.trim()
           ? `${total} tool${total === 1 ? '' : 's'} matching "${query}"`
-          : `Showing all ${index.length} tools`}
+          : activeCategory
+            ? `${total} tool${total === 1 ? '' : 's'} in ${categoryName(activeCategory)}`
+            : `Showing all ${index.length} tools`}
       </p>
 
       {total === 0 ? (

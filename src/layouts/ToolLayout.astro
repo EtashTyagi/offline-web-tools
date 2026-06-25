@@ -58,7 +58,7 @@ const catName = categoryName(tool.category);
     class="min-h-[24rem] rounded-xl bg-white p-5 ring-1 ring-slate-200 shadow-sm dark:bg-slate-800 dark:ring-slate-700"
     aria-label={tool.name}
   >
-    <ToolIsland toolId={tool.id} category={tool.category} heavy={tool.heavy} client:visible />
+    <ToolIsland toolId={tool.id} category={tool.category} client:visible />
   </article>
 
   {tags.length > 0 && (

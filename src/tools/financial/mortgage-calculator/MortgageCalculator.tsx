@@ -69,7 +69,7 @@ interface Result {
   rows: Row[];
 }
 
-function compute(loan: number, rate: number, years: number): Result {
+export function compute(loan: number, rate: number, years: number): Result {
   const monthlyRate = rate / 100 / 12;
   const months = years * 12;
   const monthly =

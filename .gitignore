@@ -26,3 +26,10 @@ pnpm-debug.log*
 
 # astro
 .astro/
+
+# test artifacts
+test-results/
+playwright-report/
+coverage/
+_probe*.mjs
+_probe*.ts

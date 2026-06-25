@@ -12,8 +12,8 @@
 5. Online python3 interpreter: https://www.npmjs.com/package/jspython-interpreter
 6. Online JS interpreter: https://github.com/NeilFraser/JS-Interpreter
 7. JSON Formatter (Pretify with options)
-8. BSON to JSON converter
-9. PROTOBUF to JSON converter
+8. BSON to JSON converter [DONE: unified into Serialization Converter (src/tools/dev/serialization-converter) covering BSON, MessagePack, CBOR, Protobuf, Pickle, Java serialized, plist with split paste/file view + encode/decode)]
+9. PROTOBUF to JSON converter [DONE: part of Serialization Converter above]
 10. Traceback Formatter and Analyzer (with options for all major languages), call tree, interactive and visual analysis.
 --- FILES ---
 11. Image format Converter (from all to all, client side, generate all exhaustive tags)
