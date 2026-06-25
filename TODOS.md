@@ -1,9 +1,9 @@
-1. SEO optimization: add tags (for example mortgage should also have home loan as tag, should be visible on google with this.) Update AGENTS.md correspondingly
 --- FINANCIAL ---
 2. Mortgage Calculator enhancements:
     a. Table and graph in Mortgage Calculator
     b. Currency change
     c. Add home loan calculator in tags
+    [DONE]
 3. FVIFA Calculator (Investment Calculator), with features similar to Mortgage Calculator as mentioned above, with initial Lump Sum capability, and multiple FVIFA inclusion (for example 30k monthly 50k yearly...)
 4. Income Tax Calculators (Exhaustive with deep research on every type of income tax) sub-category, with interactive dashboards:
     a. US Income Tax Calculator

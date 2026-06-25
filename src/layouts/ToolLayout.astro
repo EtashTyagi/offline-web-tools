@@ -3,7 +3,7 @@ import BaseLayout from './BaseLayout.astro';
 import AdSlot from '../components/layout/AdSlot.astro';
 import DownloadButton from '../components/layout/DownloadButton.astro';
 import ToolIsland from '../components/ToolIsland.tsx';
-import { buildMetaTags, toolJsonLd } from '../lib/seo';
+import { buildMetaTags, toolJsonLd, seoKeywords } from '../lib/seo';
 import { githubToolPath, isOpenSource } from '../lib/ads';
 import { categoryName } from '../lib/search';
 import type { Tool } from '../types/tool';
@@ -16,10 +16,11 @@ const { tool } = Astro.props;
 const meta = buildMetaTags({
   title: tool.seo.title,
   description: tool.seo.description,
-  keywords: tool.seo.keywords,
+  keywords: seoKeywords(tool),
   path: `/tools/${tool.category}/${tool.id}`,
   ogType: 'website',
 });
+const tags = tool.tags ?? [];
 const jsonLd = toolJsonLd(tool);
 const openSource = isOpenSource();
 const repoLink = openSource ? githubToolPath(tool.category, tool.id) : '';
@@ -59,6 +60,20 @@ const catName = categoryName(tool.category);
   >
     <ToolIsland toolId={tool.id} category={tool.category} heavy={tool.heavy} client:visible />
   </article>
+
+  {tags.length > 0 && (
+    <section class="mt-6" aria-label="Related search terms">
+      <h2 class="sr-only">Related search terms</h2>
+      <p class="mb-2 text-sm font-medium text-slate-500 dark:text-slate-400">Related terms</p>
+      <ul class="flex flex-wrap gap-2">
+        {tags.map((tag) => (
+          <li class="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+            {tag}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
 
   <div class="mt-8">
     <AdSlot slot="tool-bottom" />

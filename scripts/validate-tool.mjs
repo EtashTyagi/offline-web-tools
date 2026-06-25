@@ -70,6 +70,9 @@ function readToolObject(indexFile) {
   const heavy = heavyMatch?.[1] === 'true';
   const status = statusMatch?.[1];
 
+  const tags = parseStringArray(src, 'tags');
+  const keywords = parseStringArray(src, 'keywords');
+
   if (!id) errors.push('missing `id`');
   if (id && !KEBAB.test(id)) errors.push(`id "${id}" is not kebab-case`);
   if (!name) errors.push('missing `name`');
@@ -93,7 +96,27 @@ function readToolObject(indexFile) {
     errors.push('`component` must be a lazy `() => import(...)`');
   }
 
+  if (tags.length === 0) {
+    errors.push('missing `tags` (add SEO synonyms users search for, e.g. "home loan")');
+  }
+  const nameLower = (name || '').toLowerCase();
+  for (const tag of tags) {
+    if (tag.toLowerCase() === nameLower) {
+      errors.push(`tag "${tag}" duplicates the tool name; tags should be synonyms not the name`);
+    }
+    if (keywords.includes(tag)) {
+      errors.push(`tag "${tag}" duplicates a keyword; tags should add new synonyms`);
+    }
+  }
+
   return { id, name, category, subcategory, shortDescription, heavy, errors };
+}
+
+function parseStringArray(src, field) {
+  const re = new RegExp(`${field}:\\s*\\[([\\s\\S]*?)\\]`);
+  const m = src.match(re);
+  if (!m) return [];
+  return [...m[1].matchAll(/['"`]([^'"`]+)['"`]/g)].map((x) => x[1].trim());
 }
 
 function main() {

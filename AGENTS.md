@@ -368,7 +368,9 @@ export interface Tool {
   featured?: boolean;          // show on landing page featured row
   status: ToolStatus;          // 'active' | 'beta' | 'experimental'
   seo: ToolSeo;                // per-tool SEO metadata
-  tags?: string[];             // optional freeform tags
+  tags?: string[];             // SEO synonyms (see §5.4). Rendered as VISIBLE
+                               // "Related terms" chips so Google indexes them,
+                               // and added to the in-site search index.
 }
 ```
 
@@ -391,6 +393,37 @@ static page per tool from `allTools`. It reads the `Tool` object and renders:
 `ToolLayout` (with SEO meta, and ad slot + download button only when
 `IS_OPEN_SOURCE=true`) + the tool's React island
 via the `component` lazy import.
+
+### 5.4 SEO tags (`tags`) — synonyms that rank on Google
+
+`tags` are **SEO synonyms**: alternative terms a user might type into Google to
+find this tool. The mortgage calculator gets `['home loan', 'house loan',
+'home financing', 'property loan', 'housing loan']` so it ranks for searches
+that never include the word "mortgage".
+
+**Why tags matter (the SEO reason):** Google **ignores the `<meta name="keywords">`
+tag.** A synonym only helps you rank if Google can *see it as real content* on the
+page. So tags are rendered as a **VISIBLE "Related terms" chip section** on every
+tool page (`ToolLayout.astro`), as static HTML that Google indexes. They are also:
+
+- added to the `SoftwareApplication` JSON-LD `keywords` field, and
+- added to the in-site Fuse.js search index (so searching "home loan" finds the
+  mortgage tool even though the word isn't in its name).
+
+**Rules for populating `tags`:**
+
+1. Use terms people **actually search for** that are **NOT already in the tool
+   name**. "Mortgage Calculator" already covers "mortgage calculator", so the
+   useful tags are the synonyms: home loan, house loan, etc.
+2. Do **not** duplicate a value that's already in `keywords`. Tags should add
+   *new* synonyms. (`validate-tool.mjs` flags tag/keyword overlaps.)
+3. Do **not** put the tool name itself as a tag.
+4. Keep each tag a short, natural phrase (1-3 words). Lowercase is fine.
+5. Aim for 3-8 tags. More than ~10 starts to look spammy to users and crawlers.
+
+`tags` is technically optional in the `Tool` interface, but
+`npm run validate-tool` will flag a tool with **no** tags, because a tool without
+synonyms is missing easy SEO traffic.
 
 ---
 
@@ -467,6 +500,7 @@ const tool: Tool = {
   category: 'financial',
   subcategory: 'loans',            // optional
   keywords: ['mortgage', 'loan', 'interest', 'monthly payment', 'amortization'],
+  tags: ['home loan', 'house loan', 'home financing', 'property loan', 'housing loan'],
   icon: '🏦',
   component: () => import('./MortgageCalculator.tsx'),
   heavy: false,
@@ -498,6 +532,11 @@ phrases. See §8 for the full prompt.
 - `seo.keywords` — 3-7 relevant terms people actually search.
 - `keywords` (top-level) — broader set used for the in-site search index. Include
   synonyms and common misspellings worth matching.
+- `tags` — **SEO synonyms** rendered as visible "Related terms" chips on the
+  tool page so Google indexes them (see §5.4). Use terms people search for that
+  are NOT already in the tool name or `keywords` (e.g. mortgage → `home loan`,
+  `house loan`). `validate-tool.mjs` flags tools with no tags and tag/keyword
+  overlaps. Aim for 3-8 tags.
 
 ### Step 7 — Register the tool
 
@@ -527,6 +566,8 @@ checks:
 - `component` is a function (lazy import), not a direct import.
 - `heavy` tools use `client:visible` (enforced in the page template).
 - No duplicate keywords.
+- `tags` present (flags tools with no tags), and no tag duplicates a keyword or
+  the tool name (see §5.4).
 
 Fix everything it reports before finishing.
 
@@ -542,6 +583,11 @@ Fix everything it reports before finishing.
   its primary action (check the Network tab for the `tool_use` event after
   opting in). With `GA_MEASUREMENT_ID` unset, none of this code should ship.
 - `npm run build` → confirm the static page generates with no errors.
+- Check the tool page source: the "Related terms" chips (your `tags`) render as
+  visible static HTML, and the `SoftwareApplication` JSON-LD `keywords` includes
+  the tags. This is what makes synonyms like "home loan" Google-indexable.
+- Search `/search-tools` for a tag (e.g. "home loan") and confirm the tool shows
+  up even though the term isn't in its name.
 - `npm run lighthouse` on the tool page → confirm SEO + Performance scores are
   green.
 
@@ -621,6 +667,8 @@ validation script, partly by discipline.
 - [ ] `shortDescription` <= 100 chars.
 - [ ] `seo.title` < 60 chars; `seo.description` < 160 chars.
 - [ ] `keywords` include synonyms a user might type in search.
+- [ ] `tags` populated with 3-8 SEO synonyms (NOT in the name or `keywords`),
+      rendered as visible "Related terms" chips on the tool page (see §5.4).
 - [ ] Tool added to its category `_registry.ts` (and only there).
 - [ ] If `heavy: true`, the page uses `client:visible` and shows a loading skeleton.
 - [ ] No network calls in the component (client-side only).
@@ -634,7 +682,7 @@ validation script, partly by discipline.
 - [ ] `npm run validate-tool -- <tool-id>` passes.
 - [ ] `npm run build` succeeds; the static page is generated.
 - [ ] `npm run lighthouse` on the tool page: SEO 100, Performance >= 90.
-- [ ] Search page (`/search-tools`) finds the tool by name, keyword, and description text.
+- [ ] Search page (`/search-tools`) finds the tool by name, keyword, description text, and tags.
 
 ---
 

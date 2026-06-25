@@ -23,6 +23,15 @@ export interface Tool {
   tags?: string[];
 }
 
+/**
+ * `tags` are SEO synonyms: alternative search terms a user might type for this
+ * tool (e.g. a mortgage calculator gets `['home loan', 'house loan',
+ * 'home financing']`). Unlike `keywords`, tags are rendered as VISIBLE text on
+ * the tool page ("Related terms" chips) so Google indexes them, and they feed
+ * the in-site fuzzy search. Always populate tags with terms people actually
+ * search for that are NOT already in the tool name.
+ */
+
 export interface Subcategory {
   slug: string;
   name: string;
@@ -41,6 +50,7 @@ export interface ToolSearchEntry {
   name: string;
   shortDescription: string;
   keywords: string[];
+  tags: string[];
   category: string;
   subcategory?: string;
   icon: string;

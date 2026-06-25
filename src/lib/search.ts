@@ -9,6 +9,7 @@ export function buildSearchIndex(): ToolSearchEntry[] {
     name: tool.name,
     shortDescription: tool.shortDescription,
     keywords: tool.keywords,
+    tags: tool.tags ?? [],
     category: tool.category,
     subcategory: tool.subcategory,
     icon: tool.icon,
@@ -34,6 +35,7 @@ export function defaultFuseOptions() {
     keys: [
       { name: 'name', weight: 0.5 },
       { name: 'keywords', weight: 0.3 },
+      { name: 'tags', weight: 0.25 },
       { name: 'shortDescription', weight: 0.2 },
     ],
     threshold: 0.4,

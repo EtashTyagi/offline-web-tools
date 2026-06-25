@@ -44,6 +44,19 @@ export function buildMetaTags(opts: {
   };
 }
 
+export function seoKeywords(tool: Tool): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const k of [...tool.seo.keywords, ...(tool.tags ?? []), ...tool.keywords]) {
+    const v = k.toLowerCase().trim();
+    if (v && !seen.has(v)) {
+      seen.add(v);
+      out.push(k.trim());
+    }
+  }
+  return out;
+}
+
 export function toolJsonLd(tool: Tool): Record<string, unknown> {
   return {
     '@context': 'https://schema.org',
@@ -58,7 +71,7 @@ export function toolJsonLd(tool: Tool): Record<string, unknown> {
       price: '0',
       priceCurrency: 'USD',
     },
-    keywords: tool.keywords.join(', '),
+    keywords: seoKeywords(tool).join(', '),
   };
 }
 
