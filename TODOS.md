@@ -16,8 +16,8 @@
 9. PROTOBUF to JSON converter [DONE: part of Serialization Converter above]
 10. Traceback Formatter and Analyzer (with options for all major languages), call tree, interactive and visual analysis.
 --- FILES ---
-11. Image format Converter (from all to all, client side, generate all exhaustive tags)
-12. Document Converter All pandocjs capabilities https://www.npmjs.com/package/pandocjs from all to all, with exhaustive tags
+11. Image format Converter (from all to all, client side, generate all exhaustive tags) [Done]
+12. Document Converter All pandocjs capabilities https://www.npmjs.com/package/pandocjs from all to all, with exhaustive tags [Done]
 --- IMAGES ---
 13. Image editing web based software for basic tasks as mentioned in Images Description.
 --- AI & ML ---
