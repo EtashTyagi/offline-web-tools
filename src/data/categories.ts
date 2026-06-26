@@ -17,6 +17,9 @@ export const categories: Category[] = [
     name: 'Developer',
     icon: '🛠️',
     description: 'Interpreters, code formatters, and analysis tools for developers.',
+    subcategories: [
+      { slug: 'networking', name: 'Networking' },
+    ],
   },
   {
     slug: 'files',
@@ -40,12 +43,6 @@ export const categories: Category[] = [
     name: 'AI & ML',
     icon: '🤖',
     description: 'Client-side LLMs, image generation, and machine learning tools.',
-  },
-  {
-    slug: 'network',
-    name: 'Network',
-    icon: '🌐',
-    description: 'Pcap analysis, packet inspection, and networking utilities.',
   },
   {
     slug: 'text',

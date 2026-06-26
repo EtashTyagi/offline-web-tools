@@ -7,6 +7,19 @@ const root = resolve(__dirname, '..');
 
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+// `client:visible` is applied to every tool island by ToolLayout.astro. Confirm
+// once there that it is in use, instead of grepping each tool's index.ts (which
+// never contains the directive). The AGENTS.md rule is enforced globally here.
+const toolLayoutUsesClientVisible = (() => {
+  try {
+    return /client:visible/.test(
+      readFileSync(resolve(root, 'src/layouts/ToolLayout.astro'), 'utf8'),
+    );
+  } catch {
+    return false;
+  }
+})();
+
 function readCategories() {
   const file = readFileSync(resolve(root, 'src/data/categories.ts'), 'utf8');
   const catSlugs = [...file.matchAll(/slug:\s*['"]([^'"]+)['"]/g)].map((m) => m[1]);
@@ -85,9 +98,9 @@ function readToolObject(indexFile) {
   if (shortDescription && shortDescription.length > 100) {
     errors.push(`shortDescription is ${shortDescription.length} chars (max 100)`);
   }
-  if (heavy && !/client:visible/.test(readFileSync(indexFile, 'utf8'))) {
-    // heavy tools must use client:visible; this is enforced in the layout,
-    // but we warn here as a reminder.
+  if (heavy && !toolLayoutUsesClientVisible) {
+    // heavy tools must use client:visible; this is enforced globally in
+    // ToolLayout.astro (see the module-level check above).
     errors.push('heavy tools must render with client:visible (enforced in ToolLayout)');
   }
 

@@ -26,6 +26,6 @@
 14. Local Web LLM: https://github.com/mlc-ai/web-llm based on device capabilities, suggests models.
 15. Image Generation: https://github.com/lacerbi/web-txt2img
 --- Networking ---
-16. PCAPs analyzer, with multiple pcap capability, and network topology understanding capabilities. packet layer by layer parser, and graphical visualizer with stastics, filter, etc... Good User experience, show additional information only when user wants (via checkboxes). Singular packet flow analysis through the topology (vxlan,ip,mlag,subinterface,bridging,routing,etc... links).
+16. PCAPs analyzer, with multiple pcap capability, and network topology understanding capabilities. packet layer by layer parser, and graphical visualizer with stastics, filter, etc... Good User experience, show additional information only when user wants (via checkboxes). Singular packet flow analysis through the topology (vxlan,ip,mlag,subinterface,bridging,routing,etc... links). [Done]
 --- Text and Data ---
 17. Multiple Language (c/c++/json/md/etc...) and mode (jetbrains/vim/emacs) supporting text editor with customizable persistent bindings (based on profiles), and syntax highlighting.
