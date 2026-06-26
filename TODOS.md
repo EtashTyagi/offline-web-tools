@@ -5,6 +5,7 @@
     c. Add home loan calculator in tags
     [DONE]
 3. FVIFA Calculator (Investment Calculator), with features similar to Mortgage Calculator as mentioned above, with initial Lump Sum capability, and multiple FVIFA inclusion (for example 30k monthly 50k yearly...)
+    [DONE]
 4. Income Tax Calculators (Exhaustive with deep research on every type of income tax) sub-category, with interactive dashboards:
     a. US Income Tax Calculator
     b. Indian Income Tax Calculator
