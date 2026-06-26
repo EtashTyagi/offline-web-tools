@@ -9,6 +9,7 @@
 4. Income Tax Calculators (Exhaustive with deep research on every type of income tax) sub-category, with interactive dashboards:
     a. US Income Tax Calculator
     b. Indian Income Tax Calculator
+    [DONE]
 --- DEVELOPER ---
 5. Online python3 interpreter: https://www.npmjs.com/package/jspython-interpreter
 6. Online JS interpreter: https://github.com/NeilFraser/JS-Interpreter

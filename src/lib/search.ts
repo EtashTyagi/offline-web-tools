@@ -1,10 +1,10 @@
-import { allTools } from './registry';
+import { listedTools } from './registry';
 import { categories } from '../data/categories';
 import type { ToolSearchEntry } from '../types/tool';
 import type { Tool } from '../types/tool';
 
 export function buildSearchIndex(): ToolSearchEntry[] {
-  return allTools.map((tool) => ({
+  return listedTools.map((tool) => ({
     id: tool.id,
     name: tool.name,
     shortDescription: tool.shortDescription,
@@ -46,5 +46,5 @@ export function defaultFuseOptions() {
 }
 
 export function featuredList(): Tool[] {
-  return allTools.filter((t) => t.featured);
+  return listedTools.filter((t) => t.featured);
 }

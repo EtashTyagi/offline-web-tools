@@ -21,6 +21,10 @@ export interface Tool {
   status: ToolStatus;
   seo: ToolSeo;
   tags?: string[];
+  hidden?: boolean; // when true, the tool page still builds (SEO/sitemap) but it
+  // is excluded from the in-site search index and the flat category listings
+  // so it does not clutter a parent grouping. Used for sub-tools reached from a
+  // hub tool (e.g. per-country tax calculators under "Tax Calculators").
 }
 
 /**

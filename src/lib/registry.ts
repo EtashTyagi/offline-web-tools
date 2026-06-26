@@ -32,8 +32,13 @@ for (const tool of allTools) {
 
 export { allTools };
 
+// Tools that should appear in the in-site search index and the flat category
+// listings. `hidden` tools (sub-tools reached from a hub) keep their own pages
+// for SEO/sitemap but are omitted here so they don't clutter the listings.
+export const listedTools: Tool[] = allTools.filter((t) => !t.hidden);
+
 export const nonEmptyCategories: Category[] = (() => {
-  const used = new Set(allTools.map((t) => t.category));
+  const used = new Set(listedTools.map((t) => t.category));
   return categories.filter((c) => used.has(c.slug));
 })();
 
@@ -42,9 +47,9 @@ export function getTool(id: string): Tool | undefined {
 }
 
 export function toolsByCategory(category: string): Tool[] {
-  return allTools.filter((t) => t.category === category);
+  return listedTools.filter((t) => t.category === category);
 }
 
 export function featuredTools(): Tool[] {
-  return allTools.filter((t) => t.featured);
+  return listedTools.filter((t) => t.featured);
 }

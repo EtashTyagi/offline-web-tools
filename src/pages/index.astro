@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ToolCard from '../components/ui/ToolCard.astro';
-import { allTools, nonEmptyCategories } from '../lib/registry';
+import { listedTools, nonEmptyCategories } from '../lib/registry';
 import { buildMetaTags, websiteJsonLd } from '../lib/seo';
 import { isOpenSource, GITHUB_REPO_URL } from '../lib/ads';
 import { hasUsageData, topTools, usageTotals, usageGeneratedAt } from '../lib/usage';
@@ -22,10 +22,10 @@ const meta = buildMetaTags({
 });
 const jsonLd = websiteJsonLd();
 
-const toolCount = allTools.length;
+const toolCount = listedTools.length;
 const catCount = nonEmptyCategories.length;
 
-function pickRandom(arr: typeof allTools, n: number) {
+function pickRandom(arr: typeof listedTools, n: number) {
   const pool = [...arr];
   const out = [];
   while (out.length < n && pool.length) {
@@ -35,8 +35,8 @@ function pickRandom(arr: typeof allTools, n: number) {
   return out;
 }
 
-const showcase = pickRandom(allTools, Math.min(6, allTools.length));
-const showcaseData = allTools.map((t) => ({
+const showcase = pickRandom(listedTools, Math.min(6, listedTools.length));
+const showcaseData = listedTools.map((t) => ({
   id: t.id,
   name: t.name,
   icon: t.icon,
