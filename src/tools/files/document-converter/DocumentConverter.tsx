@@ -8,6 +8,10 @@ import {
   outputFilename,
 } from './formats';
 import { trackToolUse } from '../../../lib/track';
+// Resolved at build time: the bundled pandoc WASM asset (default, offline) or
+// an external URL when PANDOC_WASM_URL is set (required on hosts with a
+// per-file size cap such as Cloudflare Pages).
+import wasmUrl from 'virtual:pandoc-wasm-url';
 
 type InputMethod = 'paste' | 'file';
 type WrapMode = 'auto' | 'none' | 'preserve';
@@ -103,8 +107,9 @@ export default function DocumentConverter() {
         }
       }
     };
-    // Kick off the background preload immediately.
-    w.postMessage({ type: 'init' });
+    // Kick off the background preload immediately, handing the worker the
+    // resolved engine URL.
+    w.postMessage({ type: 'init', wasmUrl });
     return () => {
       w.terminate();
       workerRef.current = null;
