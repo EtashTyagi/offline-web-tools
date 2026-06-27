@@ -14,8 +14,6 @@ jobs:
 
     env:
       SITE_URL: https://offline-web-tools.net
-      IS_OPEN_SOURCE: 'true'
-      GITHUB_REPO_URL: https://github.com/EtashTyagi/offline-web-tools
 
     steps:
       - name: Checkout
