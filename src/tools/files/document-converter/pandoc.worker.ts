@@ -1,22 +1,22 @@
 // Web Worker that runs pandoc (compiled to WebAssembly) off the main thread.
 //
 // The 56 MB pandoc.wasm is fetched in the background as soon as the tool page
-// opens (an `init` message is sent on mount with the wasm URL), so the engine
-// is warm by the time the user converts. The pandoc instance is reused for
-// every conversion. Everything stays in the browser; the only network call is
-// fetching the engine asset (bundled locally for self-hosting, or from an
-// external URL when PANDOC_WASM_URL is set, e.g. on Cloudflare Pages).
+// opens (an `init` message is sent on mount), so the engine is warm by the time
+// the user converts. The pandoc instance is reused for every conversion.
+// Everything stays in the browser; the only network call is fetching the
+// engine asset. The WASM is never bundled into the build; it is always loaded
+// from PANDOC_WASM_URL so the static build stays small.
 
 import { createPandocInstance } from 'wasm-pandoc/src/core.js';
+
+// Public, CORS-enabled URL serving the pandoc WASM engine (56 MB). Loaded at
+// runtime instead of bundled so the build never emits a file this large.
+export const PANDOC_WASM_URL = 'https://unpkg.com/wasm-pandoc@1.0.1/src/pandoc.wasm';
 
 type FilesMap = Record<string, Blob | string>;
 
 interface InitMessage {
   type: 'init';
-  // URL of the pandoc WASM binary. The main thread resolves this via the
-  // `virtual:pandoc-wasm-url` module so the build can either bundle the WASM
-  // (default) or fetch it externally (when PANDOC_WASM_URL is set).
-  wasmUrl: string;
 }
 
 interface ConvertRequest {
@@ -36,7 +36,6 @@ interface WorkerScope {
 
 const ctx = self as unknown as WorkerScope;
 
-let wasmUrl: string | null = null;
 let pandocPromise: Promise<Awaited<ReturnType<typeof createPandocInstance>>> | null = null;
 
 function postProgress(stage: string, extra?: Record<string, unknown>): void {
@@ -89,7 +88,7 @@ async function ensurePandoc(): Promise<Awaited<ReturnType<typeof createPandocIns
   if (pandocPromise) return pandocPromise;
   pandocPromise = (async () => {
     postProgress('downloading', { loaded: 0, total: 0 });
-    const buf = await fetchWithProgress(wasmUrl!);
+    const buf = await fetchWithProgress(PANDOC_WASM_URL);
     postProgress('compiling');
     const instance = await createPandocInstance(buf);
     postProgress('ready');
@@ -107,7 +106,6 @@ ctx.onmessage = async (e: MessageEvent) => {
   if (!msg) return;
 
   if (msg.type === 'init') {
-    wasmUrl = msg.wasmUrl;
     try {
       await ensurePandoc();
     } catch (err) {

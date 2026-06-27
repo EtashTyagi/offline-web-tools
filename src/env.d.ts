@@ -36,8 +36,3 @@ declare module 'wasm-pandoc/src/pandoc.wasm?url' {
   const url: string;
   export default url;
 }
-
-declare module 'virtual:pandoc-wasm-url' {
-  const url: string;
-  export default url;
-}

@@ -64,7 +64,6 @@ without any of them. They are documented in [`.env.example`](./.env.example).
 | `GA_MEASUREMENT_ID` | Google Analytics 4 measurement id for anonymous, opt-in usage telemetry. Independent of `IS_OPEN_SOURCE`. Empty/unset means no telemetry at all. | empty |
 | `GA4_PROPERTY_ID` | GA4 property id, only used by the optional build-time `npm run fetch-usage` script that bakes the leaderboard into the static build. Not used at runtime. | empty |
 | `GA4_CREDENTIALS_PATH` | Path to a GA4 service-account JSON key authorized for the Data API. Only used by `npm run fetch-usage`. | empty |
-| `PANDOC_WASM_URL` | External URL for the 56 MB pandoc WASM engine used by the Document Converter. When set, the engine is fetched at runtime instead of being bundled. **Required on Cloudflare Pages** (25 MB per-file cap); leave empty for the default bundled/offline build. | empty |
 
 ### Telemetry model
 
@@ -150,8 +149,14 @@ optional.
 | `ADSENSE_CLIENT_ID` | `ca-pub-xxxxxxxxxxxxxxxx` | Only used when `IS_OPEN_SOURCE=true`. Leave empty to ship no ad code. |
 | `GITHUB_REPO_URL` | `https://github.com/EtashTyagi/offline-web-tools` | Source-folder links + "get without ads" buttons. |
 | `GA_MEASUREMENT_ID` | `G-XXXXXXXXXX` | Optional anonymous opt-in telemetry. Leave empty for a fully silent build. |
-| `PANDOC_WASM_URL` | `https://unpkg.com/wasm-pandoc@1.0.1/src/pandoc.wasm` | **Required.** Cloudflare Pages rejects files larger than 25 MB, so the 56 MB pandoc engine must be fetched from an external URL at runtime instead of bundled. Point this at any public CORS-enabled URL serving `pandoc.wasm` (unpkg, jsDelivr, or a Cloudflare R2 bucket). |
 | `NODE_VERSION` | `20` | Pin the Node version Cloudflare uses for the build. |
+
+> The Document Converter's 56 MB pandoc WASM engine is never bundled into the
+> build. It is fetched at runtime from a public CORS-enabled CDN
+> (`https://unpkg.com/wasm-pandoc@1.0.1/src/pandoc.wasm`), so the build output
+> always fits within Cloudflare Pages' 25 MB per-file limit. To change the
+> engine URL, edit `PANDOC_WASM_URL` in
+> `src/tools/files/document-converter/pandoc.worker.ts`.
 
 > `GA4_PROPERTY_ID` and `GA4_CREDENTIALS_PATH` are **not** needed in Cloudflare.
 > They are only used locally by `npm run fetch-usage` to bake the leaderboard

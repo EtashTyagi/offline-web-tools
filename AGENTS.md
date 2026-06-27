@@ -749,7 +749,6 @@ ad-free without any).
 | `GA_MEASUREMENT_ID` | Google Analytics 4 measurement id for **anonymous, opt-in usage telemetry**. INDEPENDENT of `IS_OPEN_SOURCE`. Empty/unset → no telemetry at all (no GA script, no consent banner, no settings menu, zero tracking code). When set, users see a one-time opt-in popup; nothing is sent until they accept. | empty | `G-XXXXXXXXXX` |
 | `GA4_PROPERTY_ID` | GA4 property id, only used by the optional build-time `npm run fetch-usage` script that bakes the leaderboard into the static build. Not used at runtime. | empty | `properties/123456789` |
 | `GA4_CREDENTIALS_PATH` | Path to a GA4 service-account JSON key authorized for the Data API. Only used by `npm run fetch-usage`. | empty | `/path/to/sa.json` |
-| `PANDOC_WASM_URL` | External URL for the 56 MB pandoc WASM engine used by the Document Converter. When set, the engine is fetched at runtime instead of being bundled into the build. **Required on Cloudflare Pages** (its 25 MB per-file cap rejects the bundled asset); leave empty for the default bundled/offline build (Netlify, Vercel, self-host). | empty | `https://unpkg.com/wasm-pandoc@1.0.1/src/pandoc.wasm` |
 
 - `IS_OPEN_SOURCE` unset/false (default) → no GitHub links, no "open source"
   copy, no ad script, no `<AdSlot>` markup, no `<DownloadButton>`. This is the
