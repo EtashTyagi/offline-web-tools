@@ -13,6 +13,7 @@ import {
   type Conversation,
 } from './pcap';
 import { trackToolUse } from '../../../lib/track';
+import { useIsDark } from '../../../lib/chart';
 
 interface LoadedPacket extends PcapPacket {
   fileName: string;
@@ -273,15 +274,7 @@ export default function PcapAnalyzer() {
             <div className="card">
               <h2 className="mb-2 text-sm font-semibold text-slate-900 dark:text-white">Packets by protocol</h2>
               <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={protoChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} />
-                    <Tooltip />
-                    <Bar dataKey="packets" fill="#6366f1" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <ProtocolChart data={protoChartData} />
               </div>
             </div>
 
@@ -457,6 +450,51 @@ function dstOf(p: PcapPacket): string {
   const l4 = p.layers.find((l) => l.name === 'TCP' || l.name === 'UDP');
   const port = l4?.fields.dport ? `:${l4.fields.dport}` : '';
   return (ip?.fields.dst ?? '') + port;
+}
+
+interface ProtoDatum {
+  name: string;
+  packets: number;
+  bytes: number;
+}
+
+interface ProtoTooltipPayload {
+  active?: boolean;
+  payload?: { payload: ProtoDatum; name: string; value: number; color: string }[];
+  label?: string;
+}
+
+function ProtoChartTooltip({ active, payload }: ProtoTooltipPayload) {
+  if (!active || !payload || payload.length === 0) return null;
+  const d = payload[0].payload;
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-xs shadow-lg backdrop-blur dark:border-slate-700 dark:bg-slate-800/95">
+      <p className="mb-1 font-semibold text-slate-900 dark:text-white">{d.name}</p>
+      <p className="text-slate-600 dark:text-slate-300">
+        Packets: <span className="font-medium">{d.packets}</span>
+      </p>
+      <p className="text-slate-600 dark:text-slate-300">
+        Bytes: <span className="font-medium">{formatBytes(d.bytes)}</span>
+      </p>
+    </div>
+  );
+}
+
+function ProtocolChart({ data }: { data: ProtoDatum[] }) {
+  const dark = useIsDark();
+  const axisColor = dark ? '#94a3b8' : '#64748b';
+  const gridColor = dark ? '#334155' : '#e2e8f0';
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={data}>
+        <CartesianGrid stroke={gridColor} strokeDasharray="3 3" />
+        <XAxis dataKey="name" tick={{ fill: axisColor, fontSize: 11 }} stroke={axisColor} />
+        <YAxis tick={{ fill: axisColor, fontSize: 11 }} stroke={axisColor} />
+        <Tooltip content={<ProtoChartTooltip />} cursor={{ fill: dark ? '#ffffff10' : '#00000008' }} />
+        <Bar dataKey="packets" fill="#6366f1" />
+      </BarChart>
+    </ResponsiveContainer>
+  );
 }
 
 interface TopologyGraphProps {
