@@ -744,8 +744,8 @@ ad-free without any).
 |---|---|---|---|
 | `IS_OPEN_SOURCE` | Master toggle. `true` enables GitHub links, "open source" copy, and ad slots. Anything else (or unset) keeps all of that off. | `false` (unset) | `true` |
 | `ADSENSE_CLIENT_ID` | AdSense client id. Only used when `IS_OPEN_SOURCE=true`. Empty → no ad code shipped. | empty | `ca-pub-1234567890123456` |
-| `SITE_URL` | Canonical/base URL for SEO + sitemap + Open Graph tags. | `https://offline-web-tools.com` | `https://yourdomain.com` |
-| `GITHUB_REPO_URL` | Base URL for GitHub source links + "get without ads" buttons. Only used when `IS_OPEN_SOURCE=true`. | `https://github.com/your-org/OfflineWebTools` | `https://github.com/<org>/OfflineWebTools` |
+| `SITE_URL` | Canonical/base URL for SEO + sitemap + Open Graph tags. | `https://offline-web-tools.net` | `https://yourdomain.com` |
+| `GITHUB_REPO_URL` | Base URL for GitHub source links + "get without ads" buttons. Only used when `IS_OPEN_SOURCE=true`. | `https://github.com/EtashTyagi/offline-web-tools` | `https://github.com/EtashTyagi/offline-web-tools` |
 | `GA_MEASUREMENT_ID` | Google Analytics 4 measurement id for **anonymous, opt-in usage telemetry**. INDEPENDENT of `IS_OPEN_SOURCE`. Empty/unset → no telemetry at all (no GA script, no consent banner, no settings menu, zero tracking code). When set, users see a one-time opt-in popup; nothing is sent until they accept. | empty | `G-XXXXXXXXXX` |
 | `GA4_PROPERTY_ID` | GA4 property id, only used by the optional build-time `npm run fetch-usage` script that bakes the leaderboard into the static build. Not used at runtime. | empty | `properties/123456789` |
 | `GA4_CREDENTIALS_PATH` | Path to a GA4 service-account JSON key authorized for the Data API. Only used by `npm run fetch-usage`. | empty | `/path/to/sa.json` |
@@ -807,8 +807,8 @@ ad-free without any).
 ```
 IS_OPEN_SOURCE=true \
 ADSENSE_CLIENT_ID=ca-pub-xxxxxxxxxxxxxxxx \
-SITE_URL=https://offline-web-tools.com \
-GITHUB_REPO_URL=https://github.com/<org>/OfflineWebTools \
+SITE_URL=https://offline-web-tools.net \
+GITHUB_REPO_URL=https://github.com/EtashTyagi/offline-web-tools \
 GA_MEASUREMENT_ID=G-XXXXXXXXXX \
 npm run build
 ```

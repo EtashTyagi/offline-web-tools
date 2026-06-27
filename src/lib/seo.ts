@@ -1,6 +1,6 @@
 import type { Tool } from '../types/tool';
 
-const SITE_URL = import.meta.env.SITE_URL ?? 'https://offline-web-tools.com';
+const SITE_URL = import.meta.env.SITE_URL ?? 'https://offline-web-tools.net';
 
 export function canonicalUrl(path: string): string {
   const clean = path.startsWith('/') ? path : `/${path}`;

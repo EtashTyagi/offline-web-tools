@@ -5,7 +5,7 @@ export const IS_OPEN_SOURCE =
     : rawOpenSource === true;
 export const ADSENSE_CLIENT_ID = import.meta.env.ADSENSE_CLIENT_ID ?? '';
 export const GITHUB_REPO_URL =
-  import.meta.env.GITHUB_REPO_URL ?? 'https://github.com/your-org/OfflineWebTools';
+  import.meta.env.GITHUB_REPO_URL ?? 'https://github.com/EtashTyagi/offline-web-tools';
 
 export function isOpenSource(): boolean {
   return IS_OPEN_SOURCE;

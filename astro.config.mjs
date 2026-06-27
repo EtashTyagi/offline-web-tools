@@ -4,7 +4,7 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import { fileURLToPath } from 'node:url';
 
-const SITE_URL = process.env.SITE_URL || 'https://offline-web-tools.com';
+const SITE_URL = process.env.SITE_URL || 'https://offline-web-tools.net';
 
 // wasm-pandoc ships its WASM + core as deep files but only exposes "." in its
 // package "exports" map, which blocks direct subpath imports. Alias those

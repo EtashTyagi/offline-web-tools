@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://offline-web-tools.com/sitemap-index.xml
+Sitemap: https://offline-web-tools.net/sitemap-index.xml
